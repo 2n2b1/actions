@@ -1,0 +1,21 @@
+# Set the default behavior
+* text eol=auto
+
+## Non-binary should follow Unix LF enddings
+*.sh text eol=lf
+*.md text eol=lf
+*.mk text eol=lf
+Makefile text eol=lf
+
+# even though these have no business being checked-in
+*.key binary
+*.pem binary
+*.crt binary
+
+## Binary are left alone
+*.jpg binary
+*.png binary
+
+## Compiled program files
+*.go binary
+*.c binary
