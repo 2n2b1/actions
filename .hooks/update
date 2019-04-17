@@ -1,0 +1,11 @@
+##
+## This file is generated automatically. Do not update this file directly. 
+## Original file: /mnt/d/projects/2n2b1/actions/.hooks/update.hook.sh
+##
+
+#!/bin/sh 
+{ 
+    set -e;
+    echo "update script."; 
+    exit 0; 
+} || exit 1;
