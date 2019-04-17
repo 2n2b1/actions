@@ -1,0 +1,880 @@
+From db4c077e8b235dd64cbdde772c76d978fc67d9fd Mon Sep 17 00:00:00 2001
+From: Kyle Jeske <kylejeske@users.noreply.github.com>
+Date: Wed, 17 Apr 2019 14:10:20 -0400
+Subject: [PATCH] Adding in action:JT-Hooker, GitHub hooks modification tool
+
+---
+ .hooks/README.md                       |  19 ++++
+ .hooks/post_push.sh                    |  18 ++++
+ .hooks/update                          |  11 +++
+ .hooks/update.hook.sh                  |   6 ++
+ README.md                              |   1 +
+ docs/_config.yml                       |   1 +
+ docs/hooks.md                          |  29 ++++++
+ docs/newaction.md                      |  40 ++++++++
+ docs/readme.md                         |   1 +
+ docs/samples/applypatch-msg.sample     |  15 +++
+ docs/samples/commit-msg.sample         |  24 +++++
+ docs/samples/post-update.sample        |   8 ++
+ docs/samples/pre-applypatch.sample     |  14 +++
+ docs/samples/pre-commit.sample         |  49 ++++++++++
+ docs/samples/pre-push.sample           |  53 +++++++++++
+ docs/samples/pre-rebase.sample         | 169 +++++++++++++++++++++++++++++++++
+ docs/samples/pre-receive.sample        |  24 +++++
+ docs/samples/prepare-commit-msg.sample |  36 +++++++
+ docs/samples/update.sample             | 128 +++++++++++++++++++++++++
+ use-jt-hooker/entrypoint.sh            |  56 +++++++++++
+ 20 files changed, 702 insertions(+)
+ create mode 100644 .hooks/README.md
+ create mode 100644 .hooks/post_push.sh
+ create mode 100644 .hooks/update
+ create mode 100644 .hooks/update.hook.sh
+ create mode 100644 README.md
+ create mode 100644 docs/_config.yml
+ create mode 100644 docs/hooks.md
+ create mode 100644 docs/newaction.md
+ create mode 100644 docs/readme.md
+ create mode 100644 docs/samples/applypatch-msg.sample
+ create mode 100644 docs/samples/commit-msg.sample
+ create mode 100644 docs/samples/post-update.sample
+ create mode 100644 docs/samples/pre-applypatch.sample
+ create mode 100644 docs/samples/pre-commit.sample
+ create mode 100644 docs/samples/pre-push.sample
+ create mode 100644 docs/samples/pre-rebase.sample
+ create mode 100644 docs/samples/pre-receive.sample
+ create mode 100644 docs/samples/prepare-commit-msg.sample
+ create mode 100644 docs/samples/update.sample
+ create mode 100644 use-jt-hooker/entrypoint.sh
+
+diff --git a/.hooks/README.md b/.hooks/README.md
+new file mode 100644
+index 0000000..b671a5b
+--- /dev/null
++++ b/.hooks/README.md
+@@ -0,0 +1,19 @@
++# Hooks Folder
++
++### Action taken upon commit
++A call is placed to 'jt-hooker' automatically.
++>
++    actions/use-jt-hooker
++
++Which will move the .hook.sh files to just the action name. (Per Git's requirements);
++so..
++
++>
++    .hooks/update.hook.sh   
++becomes...
++>
++    .hooks/update
++
++## No action is necessary on your part to do this.
++## Why?
++Mostly this has to be with linting, shellcheck, and running these hooks on a local system.
+\ No newline at end of file
+diff --git a/.hooks/post_push.sh b/.hooks/post_push.sh
+new file mode 100644
+index 0000000..c84aec1
+--- /dev/null
++++ b/.hooks/post_push.sh
+@@ -0,0 +1,18 @@
++#!/bin/sh
++# Post push git command
++# @Note: We use the .sh extension so the linter & shellcheck will pick up on it.
++{
++set -e
++
++    # gets the last 10 repo commits, tags them, and uploads them to docker via push.
++    tagStart=$(expr index "$IMAGE_NAME" :)
++    repoName=${IMAGE_NAME:0:tagStart-1}
++
++    for tag in 10; do
++        #$("docker tag $IMAGE_NAME ${repoName}:${tag}")
++        #$("docker push ${repoName}:${tag}")
++    done
++
++} || echo "Something went wrong. Error: $!"; exit 1;
++
++exit 0;
+\ No newline at end of file
+diff --git a/.hooks/update b/.hooks/update
+new file mode 100644
+index 0000000..2a43c88
+--- /dev/null
++++ b/.hooks/update
+@@ -0,0 +1,11 @@
++##
++## This file is generated automatically. Do not update this file directly. 
++## Original file: /mnt/d/projects/2n2b1/actions/.hooks/update.hook.sh
++##
++
++#!/bin/sh 
++{ 
++    set -e;
++    echo "update script."; 
++    exit 0; 
++} || exit 1;
+\ No newline at end of file
+diff --git a/.hooks/update.hook.sh b/.hooks/update.hook.sh
+new file mode 100644
+index 0000000..0d12103
+--- /dev/null
++++ b/.hooks/update.hook.sh
+@@ -0,0 +1,6 @@
++#!/bin/sh 
++{ 
++    set -e;
++    echo "update script."; 
++    exit 0; 
++} || exit 1;
+\ No newline at end of file
+diff --git a/README.md b/README.md
+new file mode 100644
+index 0000000..4f72995
+--- /dev/null
++++ b/README.md
+@@ -0,0 +1 @@
++# actions
+diff --git a/docs/_config.yml b/docs/_config.yml
+new file mode 100644
+index 0000000..fff4ab9
+--- /dev/null
++++ b/docs/_config.yml
+@@ -0,0 +1 @@
++theme: jekyll-theme-minimal
+diff --git a/docs/hooks.md b/docs/hooks.md
+new file mode 100644
+index 0000000..aaad21e
+--- /dev/null
++++ b/docs/hooks.md
+@@ -0,0 +1,29 @@
++# Hooks help make things happen
++
++## Hooks folder
++[Hook's folder information](../.hooks/README.md)
++
++### Update command
++>
++    actions/use-jt-hooker set-config
++
++### Available Workflow Hooks
++#### pre-commit   
++#### commit-msg   
++#### post-commit
++#### format-patch
++#### applypatch-msg
++#### pre-applypatch
++#### post-applypatch
++#### post-rewrite
++#### post-checkout
++#### post-merge
++#### pre-push
++#### pre-rebase
++
++### Available Server-side Hooks
++#### pre-Receive
++#### post-Receive
++#### update   
++>
++    arguments: [reference name] [ old revision ] [ new revision ]
+\ No newline at end of file
+diff --git a/docs/newaction.md b/docs/newaction.md
+new file mode 100644
+index 0000000..68b1533
+--- /dev/null
++++ b/docs/newaction.md
+@@ -0,0 +1,40 @@
++## Actions
++
++### Format
++>
++    [runner] [actions-repo] [folder] entrypoint.sh [action-type] [optional arguments]   
++
++
++Ideally it should look like this ..
++>
++    run actions\use-file-cleaner entrypoint.sh *.sh
++
++What I'd like to get it down to...
++>
++    run actions\use-file-cleaner *.sh
++
++
++#### New Action
++>
++    setup [actions-repo] [action-name] [default-program] [optional: linkto=[additional-repo-link]]
++
++will create:
++1) empty GitHub repo within actions repo.
++1) README.md documentation file.
++1) if source, set source and build image using source and 
++1) if linkto, set additional repo linked as folder.
++
++Raw Actions:
++>
++    git checkout --orphan feature-[new-action-name]
++
++Ideally I'd like to get this to be..
++>
++    setup new [action-name] 
++
++#### Tools - Add-Ins
++Git Large File storage
++>
++    git lfs install
++    git lfs track "*.tar"
++    git add .gitattributes
+\ No newline at end of file
+diff --git a/docs/readme.md b/docs/readme.md
+new file mode 100644
+index 0000000..d427f3d
+--- /dev/null
++++ b/docs/readme.md
+@@ -0,0 +1 @@
++## GH Actions for those who aren't yet in the "actions" beta group.
+diff --git a/docs/samples/applypatch-msg.sample b/docs/samples/applypatch-msg.sample
+new file mode 100644
+index 0000000..a5d7b84
+--- /dev/null
++++ b/docs/samples/applypatch-msg.sample
+@@ -0,0 +1,15 @@
++#!/bin/sh
++#
++# An example hook script to check the commit log message taken by
++# applypatch from an e-mail message.
++#
++# The hook should exit with non-zero status after issuing an
++# appropriate message if it wants to stop the commit.  The hook is
++# allowed to edit the commit message file.
++#
++# To enable this hook, rename this file to "applypatch-msg".
++
++. git-sh-setup
++commitmsg="$(git rev-parse --git-path hooks/commit-msg)"
++test -x "$commitmsg" && exec "$commitmsg" ${1+"$@"}
++:
+diff --git a/docs/samples/commit-msg.sample b/docs/samples/commit-msg.sample
+new file mode 100644
+index 0000000..b58d118
+--- /dev/null
++++ b/docs/samples/commit-msg.sample
+@@ -0,0 +1,24 @@
++#!/bin/sh
++#
++# An example hook script to check the commit log message.
++# Called by "git commit" with one argument, the name of the file
++# that has the commit message.  The hook should exit with non-zero
++# status after issuing an appropriate message if it wants to stop the
++# commit.  The hook is allowed to edit the commit message file.
++#
++# To enable this hook, rename this file to "commit-msg".
++
++# Uncomment the below to add a Signed-off-by line to the message.
++# Doing this in a hook is a bad idea in general, but the prepare-commit-msg
++# hook is more suited to it.
++#
++# SOB=$(git var GIT_AUTHOR_IDENT | sed -n 's/^\(.*>\).*$/Signed-off-by: \1/p')
++# grep -qs "^$SOB" "$1" || echo "$SOB" >> "$1"
++
++# This example catches duplicate Signed-off-by lines.
++
++test "" = "$(grep '^Signed-off-by: ' "$1" |
++	 sort | uniq -c | sed -e '/^[ 	]*1[ 	]/d')" || {
++	echo >&2 Duplicate Signed-off-by lines.
++	exit 1
++}
+diff --git a/docs/samples/post-update.sample b/docs/samples/post-update.sample
+new file mode 100644
+index 0000000..ec17ec1
+--- /dev/null
++++ b/docs/samples/post-update.sample
+@@ -0,0 +1,8 @@
++#!/bin/sh
++#
++# An example hook script to prepare a packed repository for use over
++# dumb transports.
++#
++# To enable this hook, rename this file to "post-update".
++
++exec git update-server-info
+diff --git a/docs/samples/pre-applypatch.sample b/docs/samples/pre-applypatch.sample
+new file mode 100644
+index 0000000..4142082
+--- /dev/null
++++ b/docs/samples/pre-applypatch.sample
+@@ -0,0 +1,14 @@
++#!/bin/sh
++#
++# An example hook script to verify what is about to be committed
++# by applypatch from an e-mail message.
++#
++# The hook should exit with non-zero status after issuing an
++# appropriate message if it wants to stop the commit.
++#
++# To enable this hook, rename this file to "pre-applypatch".
++
++. git-sh-setup
++precommit="$(git rev-parse --git-path hooks/pre-commit)"
++test -x "$precommit" && exec "$precommit" ${1+"$@"}
++:
+diff --git a/docs/samples/pre-commit.sample b/docs/samples/pre-commit.sample
+new file mode 100644
+index 0000000..68d62d5
+--- /dev/null
++++ b/docs/samples/pre-commit.sample
+@@ -0,0 +1,49 @@
++#!/bin/sh
++#
++# An example hook script to verify what is about to be committed.
++# Called by "git commit" with no arguments.  The hook should
++# exit with non-zero status after issuing an appropriate message if
++# it wants to stop the commit.
++#
++# To enable this hook, rename this file to "pre-commit".
++
++if git rev-parse --verify HEAD >/dev/null 2>&1
++then
++	against=HEAD
++else
++	# Initial commit: diff against an empty tree object
++	against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
++fi
++
++# If you want to allow non-ASCII filenames set this variable to true.
++allownonascii=$(git config --bool hooks.allownonascii)
++
++# Redirect output to stderr.
++exec 1>&2
++
++# Cross platform projects tend to avoid non-ASCII filenames; prevent
++# them from being added to the repository. We exploit the fact that the
++# printable range starts at the space character and ends with tilde.
++if [ "$allownonascii" != "true" ] &&
++	# Note that the use of brackets around a tr range is ok here, (it's
++	# even required, for portability to Solaris 10's /usr/bin/tr), since
++	# the square bracket bytes happen to fall in the designated range.
++	test $(git diff --cached --name-only --diff-filter=A -z $against |
++	  LC_ALL=C tr -d '[ -~]\0' | wc -c) != 0
++then
++	cat <<\EOF
++Error: Attempt to add a non-ASCII file name.
++
++This can cause problems if you want to work with people on other platforms.
++
++To be portable it is advisable to rename the file.
++
++If you know what you are doing you can disable this check using:
++
++  git config hooks.allownonascii true
++EOF
++	exit 1
++fi
++
++# If there are whitespace errors, print the offending file names and fail.
++exec git diff-index --check --cached $against --
+diff --git a/docs/samples/pre-push.sample b/docs/samples/pre-push.sample
+new file mode 100644
+index 0000000..6187dbf
+--- /dev/null
++++ b/docs/samples/pre-push.sample
+@@ -0,0 +1,53 @@
++#!/bin/sh
++
++# An example hook script to verify what is about to be pushed.  Called by "git
++# push" after it has checked the remote status, but before anything has been
++# pushed.  If this script exits with a non-zero status nothing will be pushed.
++#
++# This hook is called with the following parameters:
++#
++# $1 -- Name of the remote to which the push is being done
++# $2 -- URL to which the push is being done
++#
++# If pushing without using a named remote those arguments will be equal.
++#
++# Information about the commits which are being pushed is supplied as lines to
++# the standard input in the form:
++#
++#   <local ref> <local sha1> <remote ref> <remote sha1>
++#
++# This sample shows how to prevent push of commits where the log message starts
++# with "WIP" (work in progress).
++
++remote="$1"
++url="$2"
++
++z40=0000000000000000000000000000000000000000
++
++while read local_ref local_sha remote_ref remote_sha
++do
++	if [ "$local_sha" = $z40 ]
++	then
++		# Handle delete
++		:
++	else
++		if [ "$remote_sha" = $z40 ]
++		then
++			# New branch, examine all commits
++			range="$local_sha"
++		else
++			# Update to existing branch, examine new commits
++			range="$remote_sha..$local_sha"
++		fi
++
++		# Check for WIP commit
++		commit=`git rev-list -n 1 --grep '^WIP' "$range"`
++		if [ -n "$commit" ]
++		then
++			echo >&2 "Found WIP commit in $local_ref, not pushing"
++			exit 1
++		fi
++	fi
++done
++
++exit 0
+diff --git a/docs/samples/pre-rebase.sample b/docs/samples/pre-rebase.sample
+new file mode 100644
+index 0000000..33730ca
+--- /dev/null
++++ b/docs/samples/pre-rebase.sample
+@@ -0,0 +1,169 @@
++#!/bin/sh
++#
++# Copyright (c) 2006, 2008 Junio C Hamano
++#
++# The "pre-rebase" hook is run just before "git rebase" starts doing
++# its job, and can prevent the command from running by exiting with
++# non-zero status.
++#
++# The hook is called with the following parameters:
++#
++# $1 -- the upstream the series was forked from.
++# $2 -- the branch being rebased (or empty when rebasing the current branch).
++#
++# This sample shows how to prevent topic branches that are already
++# merged to 'next' branch from getting rebased, because allowing it
++# would result in rebasing already published history.
++
++publish=next
++basebranch="$1"
++if test "$#" = 2
++then
++	topic="refs/heads/$2"
++else
++	topic=`git symbolic-ref HEAD` ||
++	exit 0 ;# we do not interrupt rebasing detached HEAD
++fi
++
++case "$topic" in
++refs/heads/??/*)
++	;;
++*)
++	exit 0 ;# we do not interrupt others.
++	;;
++esac
++
++# Now we are dealing with a topic branch being rebased
++# on top of master.  Is it OK to rebase it?
++
++# Does the topic really exist?
++git show-ref -q "$topic" || {
++	echo >&2 "No such branch $topic"
++	exit 1
++}
++
++# Is topic fully merged to master?
++not_in_master=`git rev-list --pretty=oneline ^master "$topic"`
++if test -z "$not_in_master"
++then
++	echo >&2 "$topic is fully merged to master; better remove it."
++	exit 1 ;# we could allow it, but there is no point.
++fi
++
++# Is topic ever merged to next?  If so you should not be rebasing it.
++only_next_1=`git rev-list ^master "^$topic" ${publish} | sort`
++only_next_2=`git rev-list ^master           ${publish} | sort`
++if test "$only_next_1" = "$only_next_2"
++then
++	not_in_topic=`git rev-list "^$topic" master`
++	if test -z "$not_in_topic"
++	then
++		echo >&2 "$topic is already up-to-date with master"
++		exit 1 ;# we could allow it, but there is no point.
++	else
++		exit 0
++	fi
++else
++	not_in_next=`git rev-list --pretty=oneline ^${publish} "$topic"`
++	/usr/bin/perl -e '
++		my $topic = $ARGV[0];
++		my $msg = "* $topic has commits already merged to public branch:\n";
++		my (%not_in_next) = map {
++			/^([0-9a-f]+) /;
++			($1 => 1);
++		} split(/\n/, $ARGV[1]);
++		for my $elem (map {
++				/^([0-9a-f]+) (.*)$/;
++				[$1 => $2];
++			} split(/\n/, $ARGV[2])) {
++			if (!exists $not_in_next{$elem->[0]}) {
++				if ($msg) {
++					print STDERR $msg;
++					undef $msg;
++				}
++				print STDERR " $elem->[1]\n";
++			}
++		}
++	' "$topic" "$not_in_next" "$not_in_master"
++	exit 1
++fi
++
++<<\DOC_END
++
++This sample hook safeguards topic branches that have been
++published from being rewound.
++
++The workflow assumed here is:
++
++ * Once a topic branch forks from "master", "master" is never
++   merged into it again (either directly or indirectly).
++
++ * Once a topic branch is fully cooked and merged into "master",
++   it is deleted.  If you need to build on top of it to correct
++   earlier mistakes, a new topic branch is created by forking at
++   the tip of the "master".  This is not strictly necessary, but
++   it makes it easier to keep your history simple.
++
++ * Whenever you need to test or publish your changes to topic
++   branches, merge them into "next" branch.
++
++The script, being an example, hardcodes the publish branch name
++to be "next", but it is trivial to make it configurable via
++$GIT_DIR/config mechanism.
++
++With this workflow, you would want to know:
++
++(1) ... if a topic branch has ever been merged to "next".  Young
++    topic branches can have stupid mistakes you would rather
++    clean up before publishing, and things that have not been
++    merged into other branches can be easily rebased without
++    affecting other people.  But once it is published, you would
++    not want to rewind it.
++
++(2) ... if a topic branch has been fully merged to "master".
++    Then you can delete it.  More importantly, you should not
++    build on top of it -- other people may already want to
++    change things related to the topic as patches against your
++    "master", so if you need further changes, it is better to
++    fork the topic (perhaps with the same name) afresh from the
++    tip of "master".
++
++Let's look at this example:
++
++		   o---o---o---o---o---o---o---o---o---o "next"
++		  /       /           /           /
++		 /   a---a---b A     /           /
++		/   /               /           /
++	       /   /   c---c---c---c B         /
++	      /   /   /             \         /
++	     /   /   /   b---b C     \       /
++	    /   /   /   /             \     /
++    ---o---o---o---o---o---o---o---o---o---o---o "master"
++
++
++A, B and C are topic branches.
++
++ * A has one fix since it was merged up to "next".
++
++ * B has finished.  It has been fully merged up to "master" and "next",
++   and is ready to be deleted.
++
++ * C has not merged to "next" at all.
++
++We would want to allow C to be rebased, refuse A, and encourage
++B to be deleted.
++
++To compute (1):
++
++	git rev-list ^master ^topic next
++	git rev-list ^master        next
++
++	if these match, topic has not merged in next at all.
++
++To compute (2):
++
++	git rev-list master..topic
++
++	if this is empty, it is fully merged to "master".
++
++DOC_END
+diff --git a/docs/samples/pre-receive.sample b/docs/samples/pre-receive.sample
+new file mode 100644
+index 0000000..a1fd29e
+--- /dev/null
++++ b/docs/samples/pre-receive.sample
+@@ -0,0 +1,24 @@
++#!/bin/sh
++#
++# An example hook script to make use of push options.
++# The example simply echoes all push options that start with 'echoback='
++# and rejects all pushes when the "reject" push option is used.
++#
++# To enable this hook, rename this file to "pre-receive".
++
++if test -n "$GIT_PUSH_OPTION_COUNT"
++then
++	i=0
++	while test "$i" -lt "$GIT_PUSH_OPTION_COUNT"
++	do
++		eval "value=\$GIT_PUSH_OPTION_$i"
++		case "$value" in
++		echoback=*)
++			echo "echo from the pre-receive-hook: ${value#*=}" >&2
++			;;
++		reject)
++			exit 1
++		esac
++		i=$((i + 1))
++	done
++fi
+diff --git a/docs/samples/prepare-commit-msg.sample b/docs/samples/prepare-commit-msg.sample
+new file mode 100644
+index 0000000..f093a02
+--- /dev/null
++++ b/docs/samples/prepare-commit-msg.sample
+@@ -0,0 +1,36 @@
++#!/bin/sh
++#
++# An example hook script to prepare the commit log message.
++# Called by "git commit" with the name of the file that has the
++# commit message, followed by the description of the commit
++# message's source.  The hook's purpose is to edit the commit
++# message file.  If the hook fails with a non-zero status,
++# the commit is aborted.
++#
++# To enable this hook, rename this file to "prepare-commit-msg".
++
++# This hook includes three examples.  The first comments out the
++# "Conflicts:" part of a merge commit.
++#
++# The second includes the output of "git diff --name-status -r"
++# into the message, just before the "git status" output.  It is
++# commented because it doesn't cope with --amend or with squashed
++# commits.
++#
++# The third example adds a Signed-off-by line to the message, that can
++# still be edited.  This is rarely a good idea.
++
++case "$2,$3" in
++  merge,)
++    /usr/bin/perl -i.bak -ne 's/^/# /, s/^# #/#/ if /^Conflicts/ .. /#/; print' "$1" ;;
++
++# ,|template,)
++#   /usr/bin/perl -i.bak -pe '
++#      print "\n" . `git diff --cached --name-status -r`
++#	 if /^#/ && $first++ == 0' "$1" ;;
++
++  *) ;;
++esac
++
++# SOB=$(git var GIT_AUTHOR_IDENT | sed -n 's/^\(.*>\).*$/Signed-off-by: \1/p')
++# grep -qs "^$SOB" "$1" || echo "$SOB" >> "$1"
+diff --git a/docs/samples/update.sample b/docs/samples/update.sample
+new file mode 100644
+index 0000000..80ba941
+--- /dev/null
++++ b/docs/samples/update.sample
+@@ -0,0 +1,128 @@
++#!/bin/sh
++#
++# An example hook script to block unannotated tags from entering.
++# Called by "git receive-pack" with arguments: refname sha1-old sha1-new
++#
++# To enable this hook, rename this file to "update".
++#
++# Config
++# ------
++# hooks.allowunannotated
++#   This boolean sets whether unannotated tags will be allowed into the
++#   repository.  By default they won't be.
++# hooks.allowdeletetag
++#   This boolean sets whether deleting tags will be allowed in the
++#   repository.  By default they won't be.
++# hooks.allowmodifytag
++#   This boolean sets whether a tag may be modified after creation. By default
++#   it won't be.
++# hooks.allowdeletebranch
++#   This boolean sets whether deleting branches will be allowed in the
++#   repository.  By default they won't be.
++# hooks.denycreatebranch
++#   This boolean sets whether remotely creating branches will be denied
++#   in the repository.  By default this is allowed.
++#
++
++# --- Command line
++refname="$1"
++oldrev="$2"
++newrev="$3"
++
++# --- Safety check
++if [ -z "$GIT_DIR" ]; then
++	echo "Don't run this script from the command line." >&2
++	echo " (if you want, you could supply GIT_DIR then run" >&2
++	echo "  $0 <ref> <oldrev> <newrev>)" >&2
++	exit 1
++fi
++
++if [ -z "$refname" -o -z "$oldrev" -o -z "$newrev" ]; then
++	echo "usage: $0 <ref> <oldrev> <newrev>" >&2
++	exit 1
++fi
++
++# --- Config
++allowunannotated=$(git config --bool hooks.allowunannotated)
++allowdeletebranch=$(git config --bool hooks.allowdeletebranch)
++denycreatebranch=$(git config --bool hooks.denycreatebranch)
++allowdeletetag=$(git config --bool hooks.allowdeletetag)
++allowmodifytag=$(git config --bool hooks.allowmodifytag)
++
++# check for no description
++projectdesc=$(sed -e '1q' "$GIT_DIR/description")
++case "$projectdesc" in
++"Unnamed repository"* | "")
++	echo "*** Project description file hasn't been set" >&2
++	exit 1
++	;;
++esac
++
++# --- Check types
++# if $newrev is 0000...0000, it's a commit to delete a ref.
++zero="0000000000000000000000000000000000000000"
++if [ "$newrev" = "$zero" ]; then
++	newrev_type=delete
++else
++	newrev_type=$(git cat-file -t $newrev)
++fi
++
++case "$refname","$newrev_type" in
++	refs/tags/*,commit)
++		# un-annotated tag
++		short_refname=${refname##refs/tags/}
++		if [ "$allowunannotated" != "true" ]; then
++			echo "*** The un-annotated tag, $short_refname, is not allowed in this repository" >&2
++			echo "*** Use 'git tag [ -a | -s ]' for tags you want to propagate." >&2
++			exit 1
++		fi
++		;;
++	refs/tags/*,delete)
++		# delete tag
++		if [ "$allowdeletetag" != "true" ]; then
++			echo "*** Deleting a tag is not allowed in this repository" >&2
++			exit 1
++		fi
++		;;
++	refs/tags/*,tag)
++		# annotated tag
++		if [ "$allowmodifytag" != "true" ] && git rev-parse $refname > /dev/null 2>&1
++		then
++			echo "*** Tag '$refname' already exists." >&2
++			echo "*** Modifying a tag is not allowed in this repository." >&2
++			exit 1
++		fi
++		;;
++	refs/heads/*,commit)
++		# branch
++		if [ "$oldrev" = "$zero" -a "$denycreatebranch" = "true" ]; then
++			echo "*** Creating a branch is not allowed in this repository" >&2
++			exit 1
++		fi
++		;;
++	refs/heads/*,delete)
++		# delete branch
++		if [ "$allowdeletebranch" != "true" ]; then
++			echo "*** Deleting a branch is not allowed in this repository" >&2
++			exit 1
++		fi
++		;;
++	refs/remotes/*,commit)
++		# tracking branch
++		;;
++	refs/remotes/*,delete)
++		# delete tracking branch
++		if [ "$allowdeletebranch" != "true" ]; then
++			echo "*** Deleting a tracking branch is not allowed in this repository" >&2
++			exit 1
++		fi
++		;;
++	*)
++		# Anything else (is there anything else?)
++		echo "*** Update hook: unknown type of update to ref $refname of type $newrev_type" >&2
++		exit 1
++		;;
++esac
++
++# --- Finished
++exit 0
+diff --git a/use-jt-hooker/entrypoint.sh b/use-jt-hooker/entrypoint.sh
+new file mode 100644
+index 0000000..44a4c81
+--- /dev/null
++++ b/use-jt-hooker/entrypoint.sh
+@@ -0,0 +1,56 @@
++#!/bin/sh
++# parameter 1 (optional): git hooks directory
++# example: ./entrypoint.sh "../.git/hooks"
++# parameter 2 (optional): hooks to enable
++# example: ./entrypoint.sh "../.git/hooks" "update,commit-msg"
++{
++set -e
++    # default location
++    configLocation="$PWD/.hooks/"
++    configSet=false;
++
++    while getopts "c:" opt; do
++        case $opt in
++            c | config ) configSet=true; configLocation=$OPTARG;;
++            \? ) echo "Unknown option: -$OPTARG" >&2; exit 127;;
++             : ) echo "Missing option argument for -$OPTARG" >&2; exit 127;;
++             * ) echo "Invalid option -$OPTARG" >&2; exit 127;;
++        esac
++    done
++
++    if $configSet
++    then
++        echo -n "Set GitHook location: [$configLocation]\n";
++        $(git config --local core.hooksPath "$configLocation") || { echo -n "Status: Failed.\n"; exit 127; }
++        echo -n "Status: Success.\n";
++        exit 0;
++    fi
++
++    #
++    # allow for default param: 1, but keep params 2-n
++    #if [ "$1" = "config-set" ] && [ ! -n "$2" ]; then
++    #    $(git config --local core.hooksPath "$2" || echo "Error setting git config. Error: $!"; exit 1);
++    #else
++    #    echo "Missing directory location for second parameter.";
++    #    exit 127;
++    #fi
++    githooks=$(git config --get core.hooksPath);
++    # make sure .git exists
++    if [ ! -d "$githooks" ]; then
++        echo "Unable to find git hooks directory. (Provided: $githooks)";
++        exit 127;
++    fi
++    GHD=$(git config --get core.hooksPath);
++    EXT=".hook.sh";
++    STR="$GHD*$EXT";
++    echo "Looking in: $STR";
++    for f in $STR; do
++        newfilen=${f%%$EXT};
++        header="##\n## This file is generated automatically. Do not update this file directly. \n## Original file: $f\n##\n"
++        $(touch "$newfilen" \
++            && echo "$header" > "$newfilen" \
++            && $(cat $f >> $newfilen)\
++        ) \
++        || echo "New file Error: $!"; exit 1;
++    done
++} || echo "Something went wrong. Error: $!"; exit 1;
+\ No newline at end of file
+-- 
+2.11.0
+
