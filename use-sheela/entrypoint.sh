@@ -44,13 +44,15 @@
     then
         echo "Create a new dev branch and such. Name: $featureName";
         git=$(which git);
+        branchName="add-feature-$featureName"
         gitcore=$($git --exec-path)
         output=$(/bin/sh -c "true \
-                    && $gitcore/git-checkout -B add-feature-$featureName --track origin/master \
-                    && mkdir -p ./use-$featureName \
-                    && touch ./use-$featureName/readme.md \
-                    && $gitcore/git-add ./use-$featureName \
-                    && $gitcore/git-commit -m 'Initial commit of Feature: $featureName'");
+                    && $gitcore/git-checkout -B $branchName --track origin/master \
+                    && mkdir -p ./$branchName \
+                    && touch ./$branchName/readme.md \
+                    && $gitcore/git-add ./$branchName \
+                    && $gitcore/git-commit -m 'Initial commit of Feature: $featureName' \
+                    && $gitcore/git-push origin $branchName");
         echo "$output"
         exit 0;
     fi
