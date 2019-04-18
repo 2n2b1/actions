@@ -47,7 +47,10 @@
         gitcore=$($git --exec-path)
         output=$(/bin/sh -c "true \
                     && $gitcore/git-checkout -B add-feature-$featureName --track origin/master \
-                    && mkdir -p ./use-$featureName");
+                    && mkdir -p ./use-$featureName \
+                    && touch ./use-$featureName/readme.md \
+                    && $gitcore/git-add ./use-$featureName \
+                    && $gitcore/git-commit -m 'Initial commit of Feature: $featureName'");
         echo "$output"
         exit 0;
     fi
